@@ -1,5 +1,7 @@
 package com.ritz.slackclone.service;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
@@ -7,12 +9,16 @@ import org.springframework.stereotype.Service;
 import com.ritz.slackclone.entity.User;
 import com.ritz.slackclone.exception.ResourceAlreadyExistsException;
 import com.ritz.slackclone.exception.ResourceNotFoundException;
+import com.ritz.slackclone.repository.RoleRepository;
 import com.ritz.slackclone.repository.UserRepository;
 
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    RoleRepository roleRepository;
 
     @Override
     public Iterable<User> listAllUsers() {
@@ -34,6 +40,7 @@ public class UserServiceImpl implements UserService {
                     throw new ResourceAlreadyExistsException(
                             "User with email '" + _user.getEmail() + "' already exists");
                 });
+        user.setRoles(Arrays.asList(roleRepository.findByName("ROLE_USER")));
         return userRepository.save(user);
     }
 

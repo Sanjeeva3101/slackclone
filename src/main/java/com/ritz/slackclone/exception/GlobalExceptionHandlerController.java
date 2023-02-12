@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -32,12 +33,12 @@ public class GlobalExceptionHandlerController extends ResponseEntityExceptionHan
             errors.add(error.getObjectName() + ": " + error.getDefaultMessage());
         }
 
-        ApiError apiError = new ApiError(status, ex.getLocalizedMessage(), errors);
+        ApiError apiError = new ApiError(status, ex.toString(), errors);
 
         return handleExceptionInternal(ex, apiError, headers, status, request);
     }
 
-    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    @ExceptionHandler({ ResourceAlreadyExistsException.class, BadCredentialsException.class })
     public final ResponseEntity<Object> handleResourceAlreadyExistsException(Exception ex, WebRequest request) {
         HttpHeaders headers = new HttpHeaders();
         HttpStatus status = HttpStatus.BAD_REQUEST;

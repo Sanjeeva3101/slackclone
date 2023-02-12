@@ -2,7 +2,7 @@ package com.ritz.slackclone.controller;
 
 import com.ritz.slackclone.entity.User;
 import com.ritz.slackclone.model.LoginCredentials;
-
+import com.ritz.slackclone.model.RegisterCredentials;
 import com.ritz.slackclone.security.JwtUtil;
 import com.ritz.slackclone.service.UserServiceImpl;
 
@@ -36,28 +36,24 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
-    public Map<String, Object> registerHandler(@Valid @RequestBody LoginCredentials loginCredentials) {
-        String encodedPass = passwordEncoder.encode(loginCredentials.getPassword());
-        loginCredentials.setPassword(encodedPass);
-        User user = userService.saveUser(loginCredentials.toUser());
+    public Map<String, Object> registerHandler(@Valid @RequestBody RegisterCredentials registerCredentials) {
+        String encodedPass = passwordEncoder.encode(registerCredentials.getPassword());
+        registerCredentials.setPassword(encodedPass);
+        User user = userService.saveUser(registerCredentials.toUser());
         String token = jwtUtil.generateToken(user.getEmail());
         return Collections.singletonMap("jwt-token", token);
     }
 
     @PostMapping("/login")
     public Map<String, Object> loginHandler(@RequestBody LoginCredentials body) {
-        try {
-            UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(
-                    body.getEmail(), body.getPassword());
+        UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(
+                body.getEmail(), body.getPassword());
 
-            authManager.authenticate(authInputToken);
+        authManager.authenticate(authInputToken);
 
-            String token = jwtUtil.generateToken(body.getEmail());
+        String token = jwtUtil.generateToken(body.getEmail());
 
-            return Collections.singletonMap("jwt-token", token);
-        } catch (AuthenticationException authExc) {
-            throw new RuntimeException("Invalid Login Credentials");
-        }
+        return Collections.singletonMap("jwt-token", token);
     }
 
 }

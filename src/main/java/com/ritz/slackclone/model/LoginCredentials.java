@@ -1,6 +1,14 @@
 package com.ritz.slackclone.model;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.ritz.slackclone.entity.Role;
 import com.ritz.slackclone.entity.User;
+import com.ritz.slackclone.repository.RoleRepository;
 
 import lombok.*;
 
@@ -15,7 +23,10 @@ public class LoginCredentials {
     private String password;
 
     public User toUser() {
-        return new User(this.email, this.password);
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(password);
+        return user;
     }
 
 }
