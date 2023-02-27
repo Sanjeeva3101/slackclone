@@ -1,6 +1,5 @@
 package com.ritz.slackclone.exception.base;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -16,9 +15,9 @@ public class ApiError {
     private HttpStatus status;
     private String message;
     @JsonInclude(value = Include.NON_NULL)
-    private List<String> errors = null;
+    private List<ApiSubError> errors = null;
 
-    public ApiError(HttpStatus status, String message, List<String> errors) {
+    public ApiError(HttpStatus status, String message, List<ApiSubError> errors) {
         super();
         this.status = status;
         this.message = message;
@@ -29,13 +28,6 @@ public class ApiError {
         super();
         this.status = status;
         this.message = message;
-    }
-
-    public ApiError(HttpStatus status, String message, String error) {
-        super();
-        this.status = status;
-        this.message = message;
-        errors = Arrays.asList(error);
     }
 
 }

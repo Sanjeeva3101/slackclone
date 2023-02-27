@@ -1,6 +1,7 @@
 package com.ritz.slackclone.exception;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.http.HttpHeaders;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.ritz.slackclone.exception.base.ApiError;
+import com.ritz.slackclone.exception.base.ApiSubError;
 
 @EnableWebMvc
 @ControllerAdvice
@@ -25,15 +27,15 @@ public class GlobalExceptionHandlerController extends ResponseEntityExceptionHan
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        List<String> errors = new ArrayList<>();
+        List<ApiSubError> errors = new ArrayList<>();
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-            errors.add(error.getField() + ": " + error.getDefaultMessage());
+            errors.add(new ApiSubError(error.getField(), error.getDefaultMessage()));
         }
         for (ObjectError error : ex.getBindingResult().getGlobalErrors()) {
-            errors.add(error.getObjectName() + ": " + error.getDefaultMessage());
+            errors.add(new ApiSubError(error.getObjectName(), error.getDefaultMessage()));
         }
 
-        ApiError apiError = new ApiError(status, ex.toString(), errors);
+        ApiError apiError = new ApiError(status, "Invalid field error", errors);
 
         return handleExceptionInternal(ex, apiError, headers, status, request);
     }
@@ -42,7 +44,9 @@ public class GlobalExceptionHandlerController extends ResponseEntityExceptionHan
     public final ResponseEntity<Object> handleResourceAlreadyExistsException(Exception ex, WebRequest request) {
         HttpHeaders headers = new HttpHeaders();
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        return handleExceptionInternal(ex, new ApiError(status, ex.getMessage()), headers,
+        return handleExceptionInternal(ex,
+                new ApiError(status, ex.getMessage(), Arrays.asList(new ApiSubError("username", ex.getMessage()))),
+                headers,
                 status, request);
 
     }
